@@ -8,7 +8,7 @@ public func configure(_ app: Application) throws {
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     
     app.databases.use(.sqlite(.file("db.sqlite")), as: .sqlite)
-    app.databases.middleware.use(CameraMiddleware(), on: .sqlite)
+    app.databases.middleware.use(CameraMiddleware(app: app), on: .sqlite)
     app.migrations.add(CreateCamera())
     app.views.use(.leaf)
 
