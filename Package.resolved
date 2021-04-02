@@ -20,6 +20,15 @@
         }
       },
       {
+        "package": "Socket",
+        "repositoryURL": "https://github.com/Kitura/BlueSocket.git",
+        "state": {
+          "branch": null,
+          "revision": "c9894fd117457f1d006575fbfb2fdfd6f79eac03",
+          "version": "1.0.200"
+        }
+      },
+      {
         "package": "console-kit",
         "repositoryURL": "https://github.com/vapor/console-kit.git",
         "state": {
