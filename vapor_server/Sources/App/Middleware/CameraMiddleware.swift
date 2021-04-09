@@ -15,7 +15,9 @@ struct CameraMiddleware: ModelMiddleware {
     
     fileprivate static let logger = Logger(label: "camera.middleware")
     
-    let outputFile = "vapor_test_template.txt"
+    let templateCommand = "new template"
+    let terminator  = "[close]"
+    let outputSocket = Environment.process.SOCKET_PATH
     
     /// The global application. Used to access the event loop.
     var app: Application
@@ -41,13 +43,16 @@ struct CameraMiddleware: ModelMiddleware {
     func generateTemplate(from db: Database) {
         let outputFuture = app.eventLoopGroup.future()
             .renderTemplate(from: db, using: app.leaf.renderer)
-            .output(to: outputFile, app: app)
         
         // Dispatch on a background queue to output the file and message the socket.
         DispatchQueue.global(qos: .background).async {
             do {
-                let _ = try outputFuture.wait()
-                try Socket.write("1234", to: "wt.sock")
+                var view = try outputFuture.wait()
+                guard let dataString = view.data.readString(length: view.data.readableBytes) else {
+                    CameraMiddleware.logger.error("Failed to load the rendered view.")
+                    return
+                }
+                try Socket.write("\(templateCommand)\n\(dataString)\(terminator)", to: outputSocket)
             } catch ResponseError.empty(let message) {
                 CameraMiddleware.logger.error("Failed to receive a response after transmitting \"\(message)\".")
             } catch ResponseError.failure(let message) {

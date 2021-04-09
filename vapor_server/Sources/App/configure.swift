@@ -10,6 +10,7 @@ public func configure(_ app: Application) throws {
     app.databases.use(.sqlite(.file("db.sqlite")), as: .sqlite)
     app.databases.middleware.use(CameraMiddleware(app: app), on: .sqlite)
     app.migrations.add(CreateCamera())
+    app.autoMigrate()
     app.views.use(.leaf)
 
     // register routes
