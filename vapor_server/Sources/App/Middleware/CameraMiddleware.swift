@@ -13,7 +13,7 @@ struct CameraMiddleware: ModelMiddleware {
     
     typealias Model = Camera
     
-    fileprivate static let logger = Logger(label: "camera.middleware")
+    private static let logger = Logger(label: "camera.middleware")
     
     let templateCommand = "new template"
     let terminator  = "[close]"
@@ -52,7 +52,11 @@ struct CameraMiddleware: ModelMiddleware {
                     CameraMiddleware.logger.error("Failed to load the rendered view.")
                     return
                 }
-                try Socket.write("\(templateCommand)\n\(dataString)\(terminator)", to: outputSocket)
+                guard let socket = outputSocket else {
+                    CameraMiddleware.logger.error("No socket path provided as an environment variable.")
+                    return
+                }
+                try Socket.write("\(templateCommand)\n\(dataString)\(terminator)", to: socket)
             } catch ResponseError.empty(let message) {
                 CameraMiddleware.logger.error("Failed to receive a response after transmitting \"\(message)\".")
             } catch ResponseError.failure(let message) {
