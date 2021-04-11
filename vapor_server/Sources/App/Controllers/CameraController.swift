@@ -26,11 +26,12 @@ struct CameraController: RouteCollection {
     func upsert(req: Request) throws -> EventLoopFuture<Camera> {
         try Camera.validate(content: req)
         let cameraToSave = try req.content.decode(Camera.self)
-        cameraToSave.ip = try address(fromRequest: req)
         
-        guard let uuid = cameraToSave.id else {
+        guard let uuid = cameraToSave.id,
+              let ip = req.ipv4Address else {
             throw Abort(.unprocessableEntity)
         }
+        cameraToSave.ip = ip
         
         // Search for the camera in the database or create a new one.
         return Camera.query(on: req.db)
@@ -66,18 +67,5 @@ struct CameraController: RouteCollection {
         return try get(req: req)
             .flatMap { $0.delete(on: req.db) }
             .transform(to: .ok)
-    }
-    
-    /// Extracts the ipv4 address from the request.
-    /// - Parameter req: The request to extract the ip address from.
-    /// - Throws: An abort error if there is no valid ip address.
-    /// - Returns: The ipv4 address string from the request.
-    func address(fromRequest req: Request) throws -> String {
-        guard let address = req.remoteAddress,
-              address.protocol == .inet,
-              let ipAddress = address.ipAddress else {
-            throw Abort(.unprocessableEntity)
-        }
-        return ipAddress
     }
 }
