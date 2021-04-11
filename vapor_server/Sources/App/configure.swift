@@ -4,13 +4,16 @@ import FluentSQLiteDriver
 import Vapor
 
 public func configure(_ app: Application) throws {
-    // uncomment to serve files from /Public folder
-    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-    
-    app.databases.use(.sqlite(.file("db.sqlite")), as: .sqlite)
+    if app.environment == .testing {
+        app.databases.use(.sqlite(.memory), as: .sqlite)
+    } else {
+        app.databases.use(.sqlite(.file("db.sqlite")), as: .sqlite)
+    }
     app.databases.middleware.use(CameraMiddleware(app: app), on: .sqlite)
     app.migrations.add(CreateCamera())
-    app.autoMigrate()
+    if app.environment != .testing {
+        let _ = app.autoMigrate()
+    }
     app.views.use(.leaf)
 
     // register routes
