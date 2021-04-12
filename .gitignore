@@ -6,5 +6,7 @@ DerivedData/
 .DS_Store
 db.sqlite
 .swiftpm
-certs/*
-!certs/.gitkeep
+certs/server/*
+!certs/server/.gitkeep
+certs/client/*
+!certs/client/.gitkeep
