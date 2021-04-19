@@ -9,4 +9,5 @@ func routes(_ app: Application) throws {
     }
     
     try app.register(collection: CameraController())
+    try app.register(collection: ProxyController())
 }

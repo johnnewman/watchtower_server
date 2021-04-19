@@ -26,6 +26,37 @@ extension EventLoopFuture {
     }
 }
 
+extension EventLoopFuture where Value == [Camera] {
+    func flatProxyGet(_ endpoint: PathComponent, on req: Request) -> EventLoopFuture<[CameraData<ClientResponse>]> {
+        flatMapEach(on: eventLoop) { camera -> EventLoopFuture<CameraData<ClientResponse>> in
+            guard let ip = camera.ip else {
+                return req.eventLoop.future(CameraData<ClientResponse>(camera, error: ProxyError.badCameraData))
+            }
+            return req.client.get("https://\(ip)/\(endpoint)").map { clientResponse in
+                CameraData<ClientResponse>(camera, object: clientResponse)
+            }
+        }
+    }
+}
+
+extension EventLoopFuture where Value == [CameraData<ClientResponse>] {
+    func reduceIntoDict() -> EventLoopFuture<[String: String]> {
+        map { allCameraData -> [String: String] in
+            allCameraData.reduce(into: [String: String]()) { result, next in
+                guard let response = next.object else {
+                    result[next.camera.name] = (next.error ?? ProxyError.badCameraData).localizedDescription
+                    return
+                }
+                guard var body = response.body else {
+                    result[next.camera.name] = "Empty response body"
+                    return
+                }
+                result[next.camera.name] = body.readString(length: body.readableBytes)
+            }
+        }
+    }
+}
+
 extension EventLoopFuture where Value == View {
     
     /// Creates a future that outputs the view's data to the supplied file path.
