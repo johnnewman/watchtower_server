@@ -33,9 +33,10 @@ struct ProxyController: RouteCollection {
     static var proxyClient = ProxyClient()
     
     func boot(routes: RoutesBuilder) throws {
+        let api = routes.grouped("api")
         let simpleProxyEndpoints: [PathComponent] = ["status", "start", "stop"]
         simpleProxyEndpoints.forEach { endpoint in
-            routes.get(endpoint) { req in
+            api.get(endpoint) { req in
                 Camera.query(on: req.db)
                     .all()
                     .flatProxyGet(endpoint, on: req)

@@ -62,11 +62,18 @@ final class ProxyTests: XCTestCase {
         try super.tearDownWithError()
     }
     
+    func testUnknownEndpoint() throws {
+        // Endpoint must be /api/status
+        try sut.test(.GET, "/status") {
+            XCTAssertEqual($0.status, .notFound)
+        }
+    }
+    
     func testProxyStatusGivenOneClient() throws {
         try successfulStub.camera.save(on: sut.db).wait()
         (ProxyController.proxyClient as? TestClient)?.stubs.append(successfulStub.stub)
         
-        try sut.test(.GET, "status") {
+        try sut.test(.GET, "/api/status") {
             let expectedData =  [successfulStub.camera.name:["monitoring": CameraResponseValue.bool(true)]]
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual(try $0.content.decode([String: [String: CameraResponseValue]].self), expectedData)
@@ -78,13 +85,35 @@ final class ProxyTests: XCTestCase {
         try encodingFailureStub.camera.save(on: sut.db).wait()
         (ProxyController.proxyClient as? TestClient)?.stubs.append(contentsOf: [successfulStub.stub, encodingFailureStub.stub])
         
-        try sut.test(.GET, "status") {
+        try sut.test(.GET, "/api/status") {
             let expectedData: [String: [String: CameraResponseValue]] = [
                 successfulStub.camera.name: ["monitoring": .bool(true)],
                 encodingFailureStub.camera.name: ["error": .string("failed to decode response")]
             ]
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual(try $0.content.decode([String: [String: CameraResponseValue]].self) , expectedData)
+        }
+    }
+    
+    func testProxyStart() throws {
+        try successfulStub.camera.save(on: sut.db).wait()
+        (ProxyController.proxyClient as? TestClient)?.stubs.append(successfulStub.stub)
+        
+        try sut.test(.GET, "/api/start") {
+            let expectedData =  [successfulStub.camera.name:["monitoring": CameraResponseValue.bool(true)]]
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual(try $0.content.decode([String: [String: CameraResponseValue]].self), expectedData)
+        }
+    }
+    
+    func testProxyStop() throws {
+        try successfulStub.camera.save(on: sut.db).wait()
+        (ProxyController.proxyClient as? TestClient)?.stubs.append(successfulStub.stub)
+        
+        try sut.test(.GET, "/api/stop") {
+            let expectedData =  [successfulStub.camera.name:["monitoring": CameraResponseValue.bool(true)]]
+            XCTAssertEqual($0.status, .ok)
+            XCTAssertEqual(try $0.content.decode([String: [String: CameraResponseValue]].self), expectedData)
         }
     }
 }
