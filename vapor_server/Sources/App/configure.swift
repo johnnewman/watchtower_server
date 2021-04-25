@@ -2,6 +2,11 @@ import Leaf
 import Fluent
 import FluentSQLiteDriver
 import Vapor
+import NIOSSL
+
+enum AppError: Error {
+    case missingEnvVariable(_: String)
+}
 
 public func configure(_ app: Application) throws {
     if app.environment == .testing {
@@ -15,7 +20,34 @@ public func configure(_ app: Application) throws {
         let _ = app.autoMigrate()
     }
     app.views.use(.leaf)
-
-    // register routes
+    
     try routes(app)
+    
+    if app.environment != .testing {
+        try loadCerts(app)
+    }
+}
+
+/// Loads TLSConfiguration necessary for validating with upstream cameras.
+private func loadCerts(_ app: Application) throws {
+    guard let certDir = Environment.process.CERT_DIR,
+          let upstreamCA = Environment.process.UPSTREAM_CA else {
+        throw AppError.missingEnvVariable("CERT_DIR or UPSTREAM_CA")
+    }
+    guard let clientCertName = Environment.process.CLIENT_CERT else {
+        throw AppError.missingEnvVariable("CLIENT_CERT")
+    }
+    guard let clientKeyName = Environment.process.CLIENT_KEY else {
+        throw AppError.missingEnvVariable("CLIENT_KEY")
+    }
+    guard let clientCert = try NIOSSLCertificate.fromPEMFile("\(certDir)/\(clientCertName)").first else {
+        throw NIOSSLError.failedToLoadCertificate
+    }
+    
+    app.http.client.configuration.tlsConfiguration = .forClient(
+        certificateVerification: .noHostnameVerification,
+        trustRoots: .file("\(certDir)/\(upstreamCA)"),
+        certificateChain: [.certificate(clientCert)],
+        privateKey: .file("\(certDir)/\(clientKeyName)")
+    )
 }

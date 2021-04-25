@@ -22,7 +22,11 @@ struct ClientStub {
 
 /// The default `ProxyClient`, which simply sends the request to the client.
 class ProxyClient {
+    
+    let logger = Logger(label: "proxyclient")
+    
     func get(client: Client, url: URI, headers: HTTPHeaders = [:], beforeSend: (inout ClientRequest) throws -> () = { _ in }) -> EventLoopFuture<ClientResponse> {
+        logger.debug("Proxying GET to \(url).")
         return client.send(.GET, headers: headers, to: url, beforeSend: beforeSend)
     }
 }
@@ -36,6 +40,7 @@ class TestClient: ProxyClient {
     override func get(client: Client, url: URI, headers: HTTPHeaders = [:], beforeSend: (inout ClientRequest) throws -> () = { _ in }) -> EventLoopFuture<ClientResponse> {
         
         if let stub = stubs.first(where: { $0.host == url.host }) {
+            logger.info("Stubbing GET response from \(url).")
             return client.eventLoop.future(
                 ClientResponse(
                     status: stub.status,
@@ -44,6 +49,13 @@ class TestClient: ProxyClient {
                 )
             )
         }
-        return client.send(.GET, headers: headers, to: url, beforeSend: beforeSend)
+        logger.error("Did not find stub for \(url).")
+        return client.eventLoop.future(
+            ClientResponse(
+                status: .notFound,
+                headers: HTTPHeaders(),
+                body: nil
+            )
+        )
     }
 }
