@@ -2,7 +2,7 @@ services:
   server: # Container running Nginx reverse proxy server
     build:
       context: ./nginx/
-    restart: on-failure
+    restart: always
     depends_on:
       - vapor
     env_file:
@@ -18,7 +18,7 @@ services:
   vapor: # Container running Vapor server
     build:
       context: ./vapor_server/
-    restart: on-failure
+    restart: always
     env_file:
       - .env
     group_add:
