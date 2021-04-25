@@ -1,0 +1,14 @@
+[Unit]
+Description=Monitor to restart nginx Docker container
+Requires=docker.service
+After=docker.service
+
+[Service]
+User=<user>
+WorkingDirectory=<watchtower_path>
+EnvironmentFile=<watchtower_path>/.env
+ExecStart=python3 status_monitor.py
+ExecStop=rm $WT_MONITOR_SOCKET
+
+[Install]
+WantedBy=multi-user.target
