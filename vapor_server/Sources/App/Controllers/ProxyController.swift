@@ -22,16 +22,6 @@ struct CameraData<T> {
         self.camera = camera
         self.object = object
     }
-    
-//        var responseString: Stirng {
-//            guard let response = next.object else {
-//                return (next.error ?? ProxyError.badCameraData).localizedDescription
-//            }
-//            guard var body = response.body else {
-//                return "Empty response body"
-//            }
-//            return body.readString(length: body.readableBytes)
-//        }
 }
 
 enum ProxyError: Error {
@@ -39,6 +29,9 @@ enum ProxyError: Error {
 }
 
 struct ProxyController: RouteCollection {
+    
+    static var proxyClient = ProxyClient()
+    
     func boot(routes: RoutesBuilder) throws {
         let simpleProxyEndpoints: [PathComponent] = ["status", "start", "stop"]
         simpleProxyEndpoints.forEach { endpoint in
