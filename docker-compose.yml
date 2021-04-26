@@ -27,5 +27,5 @@ services:
       - "8080:8080"
     volumes:
       - /tmp:/tmp # Shared socket directory
-     - ./certs/client:${CERT_DIR}/client
+      - ./certs/client:${CERT_DIR}/client
     command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8080"]
