@@ -17,10 +17,17 @@ final class AppTests: XCTestCase {
         try super.tearDownWithError()
     }
     
+    func testUnknownEndpoint() throws {
+        // Endpoint must be /api/cameras
+        try sut.test(.GET, "/cameras") {
+            XCTAssertEqual($0.status, .notFound)
+        }
+    }
+    
     // MARK: - /cameras - Fetching all cameras
     
     func testCamerasIndexGivenNone() throws {
-        try sut.test(.GET, "cameras") {
+        try sut.test(.GET, "/api/cameras") {
             XCTAssertEqual($0.status, .ok)
             XCTAssertEqual($0.body.string, "[]")
         }
@@ -33,7 +40,7 @@ final class AppTests: XCTestCase {
             ip: "192.168.1.100",
             on: sut.db
         )
-        try sut.test(.GET, "cameras") {
+        try sut.test(.GET, "/api/cameras") {
             XCTAssertEqual($0.status, .ok)
             let cameras = try $0.content.decode([Camera].self)
             XCTAssert(cameras.count == 1)
@@ -54,7 +61,7 @@ final class AppTests: XCTestCase {
             ip: "192.168.1.101",
             on: sut.db
         )
-        try sut.test(.GET, "cameras") {
+        try sut.test(.GET, "/api/cameras") {
             XCTAssertEqual($0.status, .ok)
             let cameras = try $0.content.decode([Camera].self)
             XCTAssert(cameras.count == 2)
@@ -72,7 +79,7 @@ final class AppTests: XCTestCase {
             ip: "192.168.1.100",
             on: sut.db
         )
-        try sut.test(.GET, "cameras/\(cam.id!.uuidString)") {
+        try sut.test(.GET, "/api/cameras/\(cam.id!.uuidString)") {
             XCTAssertEqual($0.status, .ok)
             let fetchedCam = try $0.content.decode(Camera.self)
             XCTAssertEqual(fetchedCam, cam)
@@ -80,7 +87,7 @@ final class AppTests: XCTestCase {
     }
     
     func testGetUnknownCamera() throws {
-        try sut.test(.GET, "cameras/\(UUID().uuidString)") {
+        try sut.test(.GET, "/api/cameras/\(UUID().uuidString)") {
             XCTAssertEqual($0.status, .notFound)
         }
     }
@@ -92,17 +99,17 @@ final class AppTests: XCTestCase {
             ip: "192.168.1.100",
             on: sut.db
         )
-        try sut.test(.DELETE, "cameras/\(cam.id!.uuidString)") { deleteResponse in
+        try sut.test(.DELETE, "/api/cameras/\(cam.id!.uuidString)") { deleteResponse in
             XCTAssertEqual(deleteResponse.status, .ok)
             
-            try sut.test(.GET, "cameras/\(cam.id!.uuidString)") { getResponse in
+            try sut.test(.GET, "/api/cameras/\(cam.id!.uuidString)") { getResponse in
                 XCTAssertEqual(getResponse.status, .notFound)
             }
         }
     }
     
     func testDeleteUnknownCamera() throws {
-        try sut.test(.DELETE, "cameras/\(UUID().uuidString)") {
+        try sut.test(.DELETE, "/api/cameras/\(UUID().uuidString)") {
             XCTAssertEqual($0.status, .notFound)
         }
     }
@@ -119,7 +126,7 @@ final class AppTests: XCTestCase {
             XCTAssertEqual(createdCamera.id!.uuidString, uuid)
             XCTAssertEqual(createdCamera.ip, ip)
             
-            try self.sut.test(.GET, "cameras/\(uuid)") { getResponse in
+            try self.sut.test(.GET, "/api/cameras/\(uuid)") { getResponse in
                 XCTAssertEqual(getResponse.status, .ok)
                 let fetchedCamera = try getResponse.content.decode(Camera.self)
                 XCTAssertEqual(fetchedCamera, createdCamera)

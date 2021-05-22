@@ -18,18 +18,18 @@ server {
     ssl_certificate        ${CERT_DIR}/${SSL_CERT};
     ssl_certificate_key    ${CERT_DIR}/${SSL_KEY};
     ssl_client_certificate ${CERT_DIR}/${CLIENT_VERIFY_CA};
-    #ssl_verify_client      on;
+    ssl_verify_client      on;
     
-    #proxy_ssl_session_reuse       on;
-    #proxy_ssl_trusted_certificate ${CERT_DIR}/${UPSTREAM_CA};
-    #proxy_ssl_verify              on;
-    #proxy_ssl_verify_depth        2;
-    #proxy_ssl_certificate         ${CERT_DIR}/${CLIENT_CERT};
-    #proxy_ssl_certificate_key     ${CERT_DIR}/${CLIENT_KEY};
-    #proxy_buffering               off;
+    proxy_ssl_session_reuse       on;
+    proxy_ssl_trusted_certificate ${CERT_DIR}/${UPSTREAM_CA};
+    proxy_ssl_verify              on;
+    proxy_ssl_verify_depth        2;
+    proxy_ssl_certificate         ${CERT_DIR}/${CLIENT_CERT};
+    proxy_ssl_certificate_key     ${CERT_DIR}/${CLIENT_KEY};
+    proxy_buffering               off;
 
-    location ~ ^/(cameras|status|start|stop) {
-        proxy_pass http://vapor:8080;
+    location ~ ^/api/(cameras|status|start|stop) {
+        proxy_pass http://vapor:8081;
 		proxy_set_header Host $host;
 		proxy_set_header X-Real-IP $remote_addr;
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

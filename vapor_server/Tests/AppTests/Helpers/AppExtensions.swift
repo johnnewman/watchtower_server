@@ -14,7 +14,7 @@ extension Application {
             "name": name,
             "id": id
         ]
-        try test(.POST, "cameras", headers: ["X-Real-IP":address], beforeRequest: {
+        try test(.POST, "/api/cameras", headers: ["X-Real-IP":address], beforeRequest: {
             try $0.content.encode(testData)
         }, afterResponse: afterResponse)
     }

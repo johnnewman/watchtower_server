@@ -1,0 +1,19 @@
+ [ req ]
+ default_bits           = 2048
+ default_md             = sha256
+ default_keyfile        = ca_key.pem
+ distinguished_name     = req_distinguished_name
+ x509_extensions        = v3_ca 
+ prompt                 = no
+ encrypt_key            = no
+
+ [ req_distinguished_name ]
+ C                      = US
+ ST                     = <state>
+ CN                     = Watchtower
+
+ [ v3_ca ]
+
+ subjectKeyIdentifier=hash
+ authorityKeyIdentifier=keyid:always,issuer:always
+ basicConstraints = CA:true

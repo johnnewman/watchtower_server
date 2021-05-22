@@ -2,7 +2,7 @@ services:
   server: # Container running Nginx reverse proxy server
     build:
       context: ./nginx/
-    restart: on-failure
+    restart: always
     depends_on:
       - vapor
     env_file:
@@ -12,20 +12,21 @@ services:
       - ./nginx/templates/default.conf.template:/etc/nginx/templates/default.conf.template
       - ./certs:${CERT_DIR} # All certs for securing, authenticating, and proxying.
     ports:
-      - "80:8080"
+      - "8080:8080"
       - "443:8443"
   
   vapor: # Container running Vapor server
     build:
       context: ./vapor_server/
-    restart: on-failure
+    restart: always
     env_file:
       - .env
     group_add:
       - ${SOCKET_GID}
     ports:
-      - "8080:8080"
+      - "8081"
     volumes:
       - /tmp:/tmp # Shared socket directory
-    #  - ./certs/client:${CERT_DIR}
-    command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8080"]
+      - ./certs/client:${CERT_DIR}/client
+      - ./vapor_server/${STORAGE_DIR}:/app/${STORAGE_DIR} # Database
+    command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8081"]

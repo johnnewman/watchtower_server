@@ -53,8 +53,7 @@ struct CameraMiddleware: ModelMiddleware {
                     return
                 }
                 guard let socket = outputSocket else {
-                    CameraMiddleware.logger.error("No socket path provided as an environment variable.")
-                    return
+                    throw AppError.missingEnvVariable("SOCKET_PATH")
                 }
                 try Socket.write("\(templateCommand)\n\(dataString)\(terminator)", to: socket)
             } catch ResponseError.empty(let message) {

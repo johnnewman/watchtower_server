@@ -10,7 +10,7 @@ import Vapor
 
 struct CameraController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
-        let cameras = routes.grouped("cameras")
+        let cameras = routes.grouped(["api", "cameras"])
         cameras.get(use: index)
         cameras.post(use: upsert)
         cameras.group(":id") { camera in
