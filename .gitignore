@@ -10,3 +10,5 @@ certs/server/*
 !certs/server/.gitkeep
 certs/client/*
 !certs/client/.gitkeep
+vapor_server/Data/*
+!vapor_server/Data/.gitkeep

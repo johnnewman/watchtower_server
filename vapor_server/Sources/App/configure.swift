@@ -12,7 +12,10 @@ public func configure(_ app: Application) throws {
     if app.environment == .testing {
         app.databases.use(.sqlite(.memory), as: .sqlite)
     } else {
-        app.databases.use(.sqlite(.file("db.sqlite")), as: .sqlite)
+        guard let storageDir = Environment.process.STORAGE_DIR else {
+            throw AppError.missingEnvVariable("STORAGE_DIR")
+        }
+        app.databases.use(.sqlite(.file("\(storageDir)/db.sqlite")), as: .sqlite)
     }
     app.databases.middleware.use(CameraMiddleware(app: app), on: .sqlite)
     app.migrations.add(CreateCamera())

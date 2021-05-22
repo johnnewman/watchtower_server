@@ -29,6 +29,9 @@ sudo usermod -a -G wtmonitor $USER
 WT_MONITOR_GID=`getent group wtmonitor | awk -F: '{printf "%d", $3}'`
 echo "Created wtmonitor group with gid: $WT_MONITOR_GID"
 
+# Add write access to the Data directory for Vapor
+chgrp $WT_MONITOR_GID $WATCHTOWER_PATH/vapor_server/Data/
+
 # Add the wtmonitor group to env file.
 sed -i "s,<socket_gid>,$WT_MONITOR_GID", "$WATCHTOWER_PATH/.env"
 

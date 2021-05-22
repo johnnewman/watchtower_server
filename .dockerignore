@@ -1,6 +1,0 @@
-*/.build/
-*/.swiftpm/
-*/Dockerfile
-.build/
-.swiftpm/
-Dockerfile
