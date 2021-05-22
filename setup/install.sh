@@ -8,8 +8,6 @@
 # `docker-compose up -d`.
 #
 # In summary, this script:
-# - configures a Firewall to only allow HTTPS and SSH traffic.
-# - installs docker and docker-compose.
 # - creates a new "wtmonitor" group to communicate with the Vapor server.
 # - updates the .env file with the new group id.
 # - enables a systemd service for detecing when nginx needs to be restarted after a config change.
@@ -23,26 +21,7 @@ WATCHTOWER_PATH=`dirname "$(dirname "$(readlink -f "$0")")"`
 
 sudo apt update
 sudo apt upgrade -y
-sudo apt install -y ufw
-
-# Install docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh 
-rm get-docker.sh
-
-# Install docker-compose
-sudo pip3 -v install docker-compose
-
-# Add user to the docker group
-sudo usermod -aG docker $USER
-echo "Installed docker and docker-compose. Current user is now in the \"docker\" group."
-
-# Set up ufw
-echo "Creating firewall rules to allow http(s) traffic and ssh access..."
-sudo ufw enable
-sudo ufw allow '80'
-sudo ufw allow '443'
-sudo ufw allow 'ssh'
+sudo apt install -y python3-pip
 
 # Create group for unix socket read/write access.
 sudo groupadd wtmonitor
@@ -58,7 +37,7 @@ sed -i".bak" "s,<user>,$USER,g ; s,<watchtower_path>,$WATCHTOWER_PATH,g" "$WATCH
 sudo ln -s "$WATCHTOWER_PATH/setup/wtmonitor.service" "/etc/systemd/system/"
 sudo systemctl enable wtmonitor.service
 echo "Created systemd wtmonitor.service file and configured it to run on boot."
-echo "\n\nInstallation finished! Final steps to take:
+echo "Installation finished! Final steps to take:
 
 REQUIRED:
 1) Upload SSL certificates to \"$WATCHTOWER_PATH/certs/\". You will need:

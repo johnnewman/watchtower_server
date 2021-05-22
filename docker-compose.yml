@@ -12,7 +12,7 @@ services:
       - ./nginx/templates/default.conf.template:/etc/nginx/templates/default.conf.template
       - ./certs:${CERT_DIR} # All certs for securing, authenticating, and proxying.
     ports:
-      - "80:8080"
+      - "8080:8080"
       - "443:8443"
   
   vapor: # Container running Vapor server
@@ -24,8 +24,8 @@ services:
     group_add:
       - ${SOCKET_GID}
     ports:
-      - "8080:8080"
+      - "8081"
     volumes:
       - /tmp:/tmp # Shared socket directory
       - ./certs/client:${CERT_DIR}/client
-    command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8080"]
+    command: ["serve", "--env", "production", "--hostname", "0.0.0.0", "--port", "8081"]
