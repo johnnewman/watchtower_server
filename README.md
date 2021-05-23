@@ -15,7 +15,7 @@ Neither container runs as root.
 - GET `/api/status` requests the status of all downstream cameras and combines their responses into one payload.
 - GET `/api/start` starts all cameras on the network.
 - GET `/api/stop` stops all cameras on the network.
-- GET `/api/cameras` returns info saved all cameras on the network.
+- GET `/api/cameras` returns saved info (id, name, ip) on all cameras on the network.
 - POST `/api/cameras` create or update an existing camera, possibly rendering a new nginx template.
 - GET `/api/cameras/:id` request info on a single saved camera
 - DELETE `/api/cameras/:id` delete a camera, generating a new nginx template.
