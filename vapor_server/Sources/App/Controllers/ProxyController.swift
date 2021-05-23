@@ -39,7 +39,7 @@ struct ProxyController: RouteCollection {
             api.get(endpoint) { req in
                 Camera.query(on: req.db)
                     .all()
-                    .flatProxyGet(endpoint, on: req)
+                    .flatProxyGet("api/\(endpoint)", on: req)
                     .reduceIntoDict()
             }
         }
