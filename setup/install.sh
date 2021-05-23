@@ -12,7 +12,7 @@
 # - updates the .env file with the new group id.
 # - enables a systemd service for detecing when nginx needs to be restarted after a config change.
 #
-# The current user is added to both the docker and wtmonitor groups
+# The current user is added to the wtmonitor group.
 
 
 set -e
