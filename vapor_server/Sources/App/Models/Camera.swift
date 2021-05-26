@@ -20,6 +20,9 @@ final class Camera: Model, Content {
 
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
+    
+    @OptionalParent(key: "event_id")
+    var event: Event?
 
     @Field(key: "name")
     var name: String

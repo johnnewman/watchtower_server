@@ -10,6 +10,7 @@ func routes(_ app: Application) throws {
     
     try app.register(collection: CameraController())
     try app.register(collection: ProxyController())
+    try app.register(collection: EventController())
     
     if app.environment == .testing {
         ProxyController.proxyClient = TestClient()

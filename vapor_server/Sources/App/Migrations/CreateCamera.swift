@@ -15,6 +15,7 @@ struct CreateCamera: Migration {
             .field("updated_at", .date)
             .field("name", .string, .required)
             .field("ip", .string)
+            .field("event_id", .uuid, .references("events", "id"))
             .unique(on: "name")
             .unique(on: "ip")
             .create()

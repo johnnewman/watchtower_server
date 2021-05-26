@@ -18,6 +18,7 @@ public func configure(_ app: Application) throws {
         app.databases.use(.sqlite(.file("\(storageDir)/db.sqlite")), as: .sqlite)
     }
     app.databases.middleware.use(CameraMiddleware(app: app), on: .sqlite)
+    app.migrations.add(CreateEvents())
     app.migrations.add(CreateCamera())
     if app.environment != .testing {
         let _ = app.autoMigrate()
